@@ -189,7 +189,7 @@ if part_num=='d':
     test_accuracy = test_on_data(trained_data, test_data)
     print("Test stem/stop Accuracy: %f\n" % (test_accuracy))
 
-if part_num=='e' or part_num=='f':
+if part_num=='e':
     print("Executing feature engg. Prediction on Test data")
     training_data = read_json(trainFile, train_sample_size, raw_data=False, adv_features=True)
     trained_data = train_on_data(training_data)
@@ -201,7 +201,6 @@ if part_num=='e' or part_num=='f':
     test_accuracy = adv_test_on_data(trained_data, test_data)
     print("Test feature engg. Accuracy: %f\n" % (test_accuracy))
     print("\n")
-if part_num=='f':
     calculate_F1_score() 
 
 if part_num=='g':
