@@ -17,12 +17,12 @@ The first input argument is always the question number, second argument - relati
 
 ./run.sh 1 train.json test.json a
 
-Here, 'part_num' can be a-e or g. This should train classifier using train data and report accuracy and macro f-score on test data.
+Here, 'part_num' can be a-e or g. This should train classifier using train data and report accuracy train/test data.
 
 
 #### Question 2: Weighted Linear Regression
 ./run.sh 2 <path_of_train_data> <path_of_test_data> <binary_or_multi_class> <part_num>
 
-./run.sh 2 test.csv train.csv a
+./run.sh 2 test.csv train.csv 0 a
 
 Here, 'binary_or_multi_class' is 0 for binary classification and 1 for multi-class. 'part_num' is part number which can be a-c for binary classification and a-d for multi-class.
