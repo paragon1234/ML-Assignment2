@@ -92,7 +92,7 @@ def train_and_test_kernel(X, y, X_test, X_train, cls1, cls2):
         Z[i] += b
     Z = [cls1 if z>=0 else cls2 for z in Z]
 
-    return Z#, Z_train
+    return Z, Z_train
     
 def get_count_Array(y):
     ind = [[] for i in range(11)]
