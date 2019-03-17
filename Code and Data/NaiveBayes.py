@@ -13,6 +13,10 @@ from utils import getStemmedDocuments
 
 unwanted_words = {'.', '...', '?', '!', ',', ';', "'s", '(', ')', ':', '``', "''", "'"}
 
+#Read data from json file. Raw_data is to read without processing
+#Raw_data=False applies stemming and stop word removal
+#Raw_data=False and adv_features=True applies stop-word removal but not stemming(unigram) + top-10 bigrams created by 
+#removing unwanted_words. 
 def read_json(file, sample, raw_data=True, adv_features=False):
     data=[]
     count = 0;
@@ -44,7 +48,7 @@ def read_json(file, sample, raw_data=True, adv_features=False):
            #    break
     return data
 
-
+#training process where count of each word is calculated
 def train_on_data(input_data):
     data = {}
     for rating, review in input_data:
@@ -60,6 +64,7 @@ def train_on_data(input_data):
 
     return data
 
+#Naive Bayes Prediction on a single test data(review)
 def predict(train_data, test_data, adv_features=False):
     max_prob = -1e100
 
@@ -84,6 +89,7 @@ def predict(train_data, test_data, adv_features=False):
             class_for_max_sum = rating
     return class_for_max_sum
 
+#Does Advanced prediction on each review of test data giving more weightage to first 3 words
 def adv_test_on_data(train_data, test_data):
     count=0
     for i in range(len(test_data)):
@@ -94,7 +100,7 @@ def adv_test_on_data(train_data, test_data):
             count += 1
     return count/len(test_data)
 
-
+#Does prediction on each review of test data with the algorith specified
 def test_on_data(train_data, test_data, algo="NB", confusion=False):
     count=0
     for i in range(len(test_data)):
@@ -111,6 +117,7 @@ def test_on_data(train_data, test_data, algo="NB", confusion=False):
             confusion_mat[prediction-1][actual_class-1]+=1
     return count/len(test_data)
 
+#get the Vocab (words in train data) and their count
 def get_vocab(data):
     v = Counter([])
     for rating in data:
@@ -129,7 +136,7 @@ def calculate_F1_score():
         print("class %d precision=%f recall=%f F1=%f" % (i+1, p,r, F1))
     print("Average F1_score = %f" % (sum/5))
 
-    #Grab command line input
+#Grab command line input
 if len(sys.argv[1:]) < 3:
     print("Usage: <path_of_train_data> <path_of_test_data>  <part_num>")
     sys.exit(1)
@@ -181,11 +188,8 @@ if part_num=='d':
     training_data = read_json(trainFile, train_sample_size, raw_data=False)
     print("!!!!!!!!!!!")
     trained_data = train_on_data(training_data)
-    print("@@@@@@@@@@@@@@@@@@@@")
     test_data = read_json(testFile,test_sample_size, raw_data=False)
-    print("###########################")
     v = get_vocab(trained_data)
-    print("$$$$$$$$$$$$$$$$$$$$$$")
     test_accuracy = test_on_data(trained_data, test_data)
     print("Test stem/stop Accuracy: %f\n" % (test_accuracy))
 
