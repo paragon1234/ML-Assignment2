@@ -77,12 +77,12 @@ def train_and_test_kernel(X, y, X_test, X_train, cls1, cls2):
     #print("\t\tb = ", b)
 
     # training data prediction
-    #Z_train = np.zeros(len(X_train))
-    #for i in range(len(X_train)):
-    #    for n in range(len(sa)):
-    #        Z_train[i] += sa[n] * sv_y[n] * gaussian_kernel(X_train[i], sv_x[n])
-    #    Z_train[i] += b
-    #Z_train = [cls1 if z>=0 else cls2 for z in Z_train]
+    Z_train = np.zeros(len(X_train))
+    for i in range(len(X_train)):
+        for n in range(len(sa)):
+            Z_train[i] += sa[n] * sv_y[n] * gaussian_kernel(X_train[i], sv_x[n])
+        Z_train[i] += b
+    Z_train = [cls1 if z>=0 else cls2 for z in Z_train]
 
     # test data prediction
     Z = np.zeros(len(X_test))
@@ -124,11 +124,13 @@ w_acc=1e-5
 no_class = 10
 class_combi = 45
 
+#test and train accuracy using CVXOPT one-vs-one classifier
 if multi_class==1 and part_num=='a':
     print("CVXOPT package")
     #train on Gaussian Kernel
     print("\tGaussian Kernel")
 
+    #Training using one-vs-one classifier
     count = 0
     Y_pred = [[] for i in range(class_combi)]
     Y_train_pred = [[] for i in range(class_combi)]
@@ -139,17 +141,18 @@ if multi_class==1 and part_num=='a':
             X = np.concatenate((X_train[train_ind[i]+1:train_ind[i+1]+1,:], X_train[train_ind[j]+1:train_ind[j+1]+1,:]))
             m = np.empty((size2)); m.fill(-1)
             Y = np.concatenate((np.ones(size1), m))
-            #Y_pred[count], Y_train_pred[count] = train_and_test_kernel(X, Y, X_test, X_train, i, j)
-            Y_pred[count] = train_and_test_kernel(X, Y, X_test, X_train, i, j)
+            Y_pred[count], Y_train_pred[count] = train_and_test_kernel(X, Y, X_test, X_train, i, j)
             count += 1
 
-# Y_train_pred = np.array(Y_train_pred)
-# Y_train_pred_maj = []
-# for i in range(len(Y_train)):
-    # count = Counter(Y_train_pred[:, i])
-    # Y_train_pred_maj.append(count.most_common(1)[0][0])
-# print("\t\tTrain Accuracy = ", np.sum(Y_train_pred_maj == Y_train)/len(Y_train))
+    #train accuracy
+    Y_train_pred = np.array(Y_train_pred)
+    Y_train_pred_maj = []
+    for i in range(len(Y_train)):
+        count = Counter(Y_train_pred[:, i])
+        Y_train_pred_maj.append(count.most_common(1)[0][0])
+    print("\t\tTrain Accuracy = ", np.sum(Y_train_pred_maj == Y_train)/len(Y_train))
 
+    #test accuracy
     Y_pred = np.array(Y_pred)
     Y_pred_maj = []
     for i in range(len(Y_test)):
@@ -157,7 +160,9 @@ if multi_class==1 and part_num=='a':
         Y_pred_maj.append(count.most_common(1)[0][0])
     print("\t\tTest Accuracy = ", np.sum(Y_pred_maj == Y_test)/len(Y_test))
 
-if multi_class==1 and part_num=='b':
+#test and train accuracy using LIBSVM
+#Also creates confidence matrix from test prediction 
+if multi_class==1 and (part_num=='b' or part=='c'):
     print("LIBSVM package")
     print("\tGaussian Kernel")
     #train on linear kernel
@@ -169,3 +174,11 @@ if multi_class==1 and part_num=='b':
     predicted_labels, _, _ = svm_predict(Y_train, X_train, n)
     print("\t\tTesting Accuracy")
     predicted_labels, _, _ = svm_predict(Y_test, X_test, n)
+    print(predicted_labels)
+    conf_mat = np.zeros([no_class, no_class])
+    for i in range(len(Y_test)):
+            conf_mat[predicted_labels[i]][Y_test[i]] += 1
+
+
+
+
